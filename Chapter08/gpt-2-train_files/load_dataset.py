@@ -13,8 +13,7 @@ def load_dataset(enc, path, combine, encoding=None):
     elif os.path.isdir(path):
         # Directory
         for (dirpath, _, fnames) in os.walk(path):
-            for fname in fnames:
-                paths.append(os.path.join(dirpath, fname))
+            paths.extend(os.path.join(dirpath, fname) for fname in fnames)
     else:
         # Assume glob
         paths = glob.glob(path)
@@ -25,8 +24,7 @@ def load_dataset(enc, path, combine, encoding=None):
         if path.endswith('.npz'):
             # Pre-encoded
             with np.load(path) as npz:
-                for item in npz.files:
-                    token_chunks.append(npz[item])
+                token_chunks.extend(npz[item] for item in npz.files)
         else:
             # Plain text
             with open(path, 'r', encoding=encoding) as fp:
@@ -65,15 +63,15 @@ class Sampler(object):
         self.chunks = chunks
         self.total_size = sum(chunk.shape[0] for chunk in chunks)
         self.boundaries = [0]
-        for i in range(len(chunks)):
-            self.boundaries.append(self.boundaries[-1] + chunks[i].shape[0])
+        self.boundaries.extend(
+            self.boundaries[-1] + chunks[i].shape[0] for i in range(len(chunks))
+        )
         self.rs = np.random.RandomState(seed=seed)
 
     def sample(self, length):
         assert length < self.total_size // len(
             self.chunks
-        ), "Dataset files are too small to sample {} tokens at a time".format(
-            length)
+        ), f"Dataset files are too small to sample {length} tokens at a time"
         while True:
             index = self.rs.randint(0, self.total_size - length - 1)
             i = binary_search(lambda j: self.boundaries[j] > index, 0,

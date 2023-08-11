@@ -10,12 +10,9 @@ from pickle import dump
 
 # load doc into memory
 def load_doc(filename):
-	# open the file as read only
-	file = open(filename, mode='rt', encoding='utf-8')
-	# read all text
-	text = file.read()
-	# close the file
-	file.close()
+	with open(filename, mode='rt', encoding='utf-8') as file:
+		# read all text
+		text = file.read()
 	return text
  
 # split a loaded document into sentences
@@ -32,9 +29,9 @@ import re
 import string
 import unicodedata
 def clean_lines(lines):
-	cleaned = list()
+	cleaned = []
 	# prepare regex for char filtering
-	re_print = re.compile('[^%s]' % re.escape(string.printable))
+	re_print = re.compile(f'[^{re.escape(string.printable)}]')
 	# prepare translation table for removing punctuation
 	table = str.maketrans('', '', string.punctuation)
 	for line in lines:
@@ -63,9 +60,8 @@ minlen, maxlen = sentence_lengths(sentences)
 print('English data: sentences=%d, min=%d, max=%d' % (len(sentences), minlen, maxlen))
 cleanf=clean_lines(sentences)
 filename = 'English.pkl'
-outfile = open(filename,'wb')
-pickle.dump(cleanf,outfile)
-outfile.close()
+with open(filename,'wb') as outfile:
+	pickle.dump(cleanf,outfile)
 print(filename," saved")
 
 # load English data
@@ -76,9 +72,8 @@ minlen, maxlen = sentence_lengths(sentences)
 print('French data: sentences=%d, min=%d, max=%d' % (len(sentences), minlen, maxlen))
 cleanf=clean_lines(sentences)
 filename = 'French.pkl'
-outfile = open(filename,'wb')
-pickle.dump(cleanf,outfile)
-outfile.close()
+with open(filename,'wb') as outfile:
+	pickle.dump(cleanf,outfile)
 print(filename," saved")
 
 
