@@ -78,8 +78,7 @@ def main():
         hparams.override_from_dict(json.load(f))
 
     if args.sample_length > hparams.n_ctx:
-        raise ValueError(
-            "Can't get samples longer than window size: %s" % hparams.n_ctx)
+        raise ValueError(f"Can't get samples longer than window size: {hparams.n_ctx}")
 
     if args.model_name == '345M':
         args.memory_saving_gradients = True
